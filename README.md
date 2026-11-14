@@ -16,6 +16,8 @@ Una app de escritorio liviana, sin instalaciones raras y sin dependencias.
 
 [Para quién es](#-para-quién-es) ·
 [Qué incluye](#-qué-incluye) ·
+[Exportar a CSV](#-exportar-a-csv) ·
+[Historial](#-historial) ·
 [Inicio rápido](#-inicio-rápido) ·
 [Fórmulas](#-fórmulas) ·
 [Generar el .exe](#-generar-el-exe)
@@ -30,10 +32,10 @@ AdOps está pensada para quienes trabajan con números de programática todos lo
 
 | Perfil | Para qué le sirve |
 |---|---|
-| **Ad Ops / Revenue Ops** | Pasar de CPM a revenue (y al revés) y ver el margen real en segundos |
+| **Ad Ops / Revenue Ops** | Pasar de CPM a revenue (y al revés), ver el margen real y auditar el embudo de cada fuente |
 | **Publishers** | Comparar fuentes de demanda por eCPM neto y detectar cuál rinde más |
 | **Agencias y traders** | Entender cuánto del bruto llega al publisher y cuánto se queda el intermediario |
-| **Finanzas y conciliación** | Cuantificar discrepancias contra el partner antes de facturar |
+| **Finanzas y conciliación** | Cuantificar discrepancias contra el partner antes de facturar, con reportes listos para compartir |
 
 > Todo se calcula en tu computadora. No hay cuentas, ni servidores, ni datos que salgan de tu equipo.
 
@@ -44,7 +46,9 @@ AdOps está pensada para quienes trabajan con números de programática todos lo
 El encabezado tiene dos controles globales:
 
 - **Tipo de precio** · alterna entre *Bruto / Gross* y *Neto / Net*. Define cómo se interpretan los valores que cargás.
-- **Limpiar / Cargar ejemplo** · carga datos de prueba en todas las pestañas o borra todo de una vez.
+- **Limpiar / Cargar ejemplo** · carga datos de prueba en todas las pestañas o limpia los formularios (no borra el historial).
+
+> **Sobre los clics:** no entran en el cálculo de revenue. Con pago por CPM o eCPM se cobra por impresión, así que mezclar clics ahí distorsionaría las métricas. Los clics se usan **solo para el CTR**.
 
 <br />
 
@@ -66,23 +70,25 @@ Debajo, un desglose con **la fórmula aplicada en cada línea** y un gráfico de
 
 ### 2 · Comparador de Fuentes (eCPM y Embudo)
 
-Cargá cada fuente con su embudo completo (Requests, Bids, Wins, Impresiones) y su precio. La app calcula por fila:
+Cargá cada fuente con su embudo (Requests, Bids, Wins, Impresiones), sus clics (opcional) y su precio. La app calcula por fila:
 
-`Bid Rate` · `Win Rate` · `Render Rate` · `Fill Rate` · `eCPM Neto` · `Margen`
+`Bid Rate` · `Win Rate` · `Render Rate` · `Fill Rate` · `CTR` · `eCPM Neto` · `Revenue Neto` · `eRPM Req.` · `Margen`
 
 - La fuente más rentable queda **resaltada en verde con ★**.
-- Un **ranking visual** ordena todas las fuentes por eCPM neto.
-- **Exportación a CSV**, lista para abrir en Excel o Google Sheets.
-- Validación del embudo: avisa si las cifras no son decrecientes (Requests ≥ Bids ≥ Wins ≥ Impresiones).
+- **Ranking configurable:** ordená el gráfico por eCPM Neto, Revenue Neto, eRPM Req., Fill Rate, Win Rate, Render Rate o CTR.
+- **Totales ponderados:** Revenue Bruto y Neto total, eCPM Neto ponderado y Fill Rate global.
+- **Comparar 2 fuentes:** seleccioná dos filas (Ctrl + clic) y mirá la comparación directa métrica por métrica, con diferencia y quién gana en cada una.
+- Los campos del embudo son opcionales: lo que no cargues se muestra como «—», sin inventar ceros.
 
 <details>
-<summary><b>¿Qué significa "Modo de pago" y "Fee"?</b></summary>
+<summary><b>¿Qué significan "Modo de pago", "Fee" y "eRPM Req."?</b></summary>
 
 <br />
 
 - **CPM**: el valor que cargás es el precio por mil impresiones.
 - **eCPM**: el valor que cargás es el revenue total; el eCPM se calcula solo.
 - **Fee interm. (%)**: el margen del intermediario. Se usa para convertir entre Bruto y Neto según el tipo de precio de cada fuente.
+- **eRPM Req.**: Revenue Neto por cada 1.000 requests. Sirve para comparar fuentes que mezclan precio y fill rate distintos.
 
 </details>
 
@@ -102,6 +108,40 @@ El semáforo toma el mayor valor absoluto entre la discrepancia de impresiones y
 
 <br />
 
+### 4 · Historial
+
+Cada pestaña tiene un botón **Guardar en historial**. Los registros se conservan al cerrar la app, se pueden filtrar por módulo y restaurar con doble clic para retomar un cálculo donde lo dejaste. Las discrepancias se colorean según el semáforo.
+
+<br />
+
+## ✦ Validación de datos
+
+Los campos con error se marcan en rojo y un mensaje explica qué corregir. Algunos de los controles:
+
+- Impresiones, CPM y Revenue deben ser mayores a 0; margen y fee entre 0% y 100% (sin incluir 100).
+- El CPM Neto del intermediario no puede superar al CPM Bruto.
+- El embudo debe ser decreciente: Requests ≥ Bids ≥ Wins ≥ Impresiones.
+- Los clics no pueden superar a las impresiones.
+- No se admiten fuentes con nombre repetido.
+- Avisos (no bloqueantes) ante valores inusuales, como un eCPM muy alto o un margen superior al 60%.
+- Los campos numéricos aceptan solo dígitos, punto y coma.
+
+<br />
+
+## ✦ Exportar a CSV
+
+Todas las pestañas tienen **Exportar CSV**. Antes de guardar, la app pregunta dos cosas:
+
+| Opción | Qué hace |
+|---|---|
+| **Excel en español** (por defecto) | Separador `;` y decimales con coma: se abre ordenado en columnas en Excel de Latinoamérica y España |
+| **Formato internacional** | Separador `,` y decimales con punto |
+| **Incluir encabezado, resumen y notas** | Reporte completo. Si lo desactivás, el archivo trae solo la tabla de datos, ideal para tablas dinámicas o BI |
+
+El reporte completo incluye cabecera con módulo y fecha, un **resumen** con totales, la **tabla de detalle** con unidades en cada columna (`($)`, `(%)`), y notas con las fórmulas usadas. El archivo se guarda en UTF-8 con BOM, para que Excel muestre bien tildes y símbolos, y los textos se sanean para evitar inyección de fórmulas.
+
+<br />
+
 ## ✦ Inicio rápido
 
 **Requisitos:** Python 3.8 o superior con tkinter. En Windows y macOS ya viene incluido con el instalador de [python.org](https://www.python.org/downloads/).
@@ -113,7 +153,7 @@ python adops_control_financiero.py
 > **Windows:** si `python` no se reconoce, usá `py adops_control_financiero.py`.
 > **Linux:** si falta tkinter, instalalo con `sudo apt install python3-tk`.
 
-Al abrir la app, tocá **Limpiar / Cargar ejemplo → Cargar ejemplo** y recorré las tres pestañas para ver todo funcionando.
+Al abrir la app, tocá **Limpiar / Cargar ejemplo → Cargar ejemplo** y recorré las pestañas para ver todo funcionando.
 
 <br />
 
@@ -149,7 +189,9 @@ Bid Rate    = Bids ÷ Requests × 100
 Win Rate    = Wins ÷ Bids × 100
 Render Rate = Impresiones ÷ Wins × 100
 Fill Rate   = Impresiones ÷ Requests × 100
+CTR         = Clics ÷ Impresiones × 100        (los clics no afectan el revenue)
 eCPM Neto   = Revenue Neto ÷ Impresiones × 1.000
+eRPM Req.   = Revenue Neto ÷ Requests × 1.000
 Margen (%)  = (Bruto − Neto) ÷ Bruto × 100
 ```
 
@@ -183,6 +225,18 @@ py -m PyInstaller --onefile --windowed --icon=icono.ico adops_control_financiero
 El resultado queda en la carpeta `dist/`. Hay que volver a generarlo cada vez que se modifique el código.
 
 > La ventana ya incluye su propio icono dibujado por código. El archivo `icono.ico` solo se usa para el icono del `.exe`.
+
+<br />
+
+## ✦ Dónde se guardan los datos
+
+El historial vive en un archivo local, en la carpeta personal del usuario:
+
+```
+~/.adops_control_financiero/historial.json
+```
+
+En Windows suele ser `C:\Users\<usuario>\.adops_control_financiero\historial.json`. Podés borrarlo para empezar de cero. Guarda hasta 500 registros.
 
 <br />
 
